@@ -1,12 +1,24 @@
 import os
 import datetime
 import flask
+import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 import data.db_session as db_session
 from data.event import Event
 from data.attendee import Attendee
 
 app = flask.Flask(__name__)
+
+
+# ------------------------------------------------------------
+# Logging setup for Render
+# ------------------------------------------------------------
+# This ensures logs from the scheduler show up in Render's dashboard
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("event_tool_scheduler")
+
+
 
 
 def main():
@@ -36,22 +48,33 @@ def cleanup_old_attendees():
     cutoff = datetime.datetime.now() - datetime.timedelta(days=5)
     with get_session() as session:
         old_events = session.query(Event).filter(Event.event_datetime < cutoff).all()
+
+        total_deleted = 0
         for event in old_events:
-            session.query(Attendee).filter(Attendee.event_id == event.id).delete()
+            count = (
+                session.query(Attendee)
+                .filter(Attendee.event_id == event.id)
+                .delete(synchronize_session=False)
+            )
+            total_deleted += count
+
+        logger.info(
+            f"[Scheduler] Cleanup ran at {datetime.datetime.now():%Y-%m-%d %H:%M:%S}, "
+            f"removed {total_deleted} old attendees."
+        )
 
 
 def start_scheduler():
     """
-    Starts the cleanup scheduler, but ensures it's only launched once
-    (avoids duplicate jobs in multi-worker environments like Render).
+    Starts the cleanup scheduler (once per deployment).
     """
-    if os.environ.get("RUN_MAIN") == "true":  # ensures only main process starts it
+    if os.environ.get("RUN_MAIN") == "true":  # ensures only one instance runs
         scheduler = BackgroundScheduler(daemon=True)
         scheduler.add_job(func=cleanup_old_attendees, trigger="interval", hours=24)
         scheduler.start()
-        print("Background scheduler started.")
+        logger.info("[Scheduler] Background cleanup job started.")
     else:
-        print("Scheduler not started in this process (RUN_MAIN != true).")
+        logger.info("[Scheduler] Skipped startup for non-main process.")
 
 
 def create_app():

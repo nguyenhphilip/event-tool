@@ -5,11 +5,8 @@ from data.modelbase import SqlAlchemyBase
 
 
 class Event(SqlAlchemyBase):
-
-    # the name for the database that shows up in the sql database
     __tablename__ = 'events'
 
-    # define the database schema in sqlaalchemy and the type of the column in python simultaneously
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     title = sa.Column(sa.String, nullable=False)
     event_slug = sa.Column(sa.String, nullable=False)
@@ -18,14 +15,24 @@ class Event(SqlAlchemyBase):
     location = sa.Column(sa.String, nullable=False)
     description = sa.Column(sa.String, nullable=True)
     fu_notes = sa.Column(sa.String, nullable=True)
-
     event_url = sa.Column(sa.String)
     host_name = sa.Column(sa.String, index=True)
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey("user.id"))
-    # create admin object from Admin table
-    user = orm.relationship("User", back_populates="events")
-    attendees = orm.relationship("Attendee", back_populates="event", cascade="all, delete-orphan")
+
+    # relationships
+    user = orm.relationship(
+        "User",
+        back_populates="events",
+        lazy="joined"          # 👈 always eager-load user when querying Event
+    )
+
+    attendees = orm.relationship(
+        "Attendee",
+        back_populates="event",
+        cascade="all, delete-orphan",
+        lazy="selectin"        # 👈 loads attendees efficiently when accessed
+    )
 
     def __repr__(self):
         return f'<Event: {self.id}>'

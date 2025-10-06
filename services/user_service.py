@@ -2,7 +2,7 @@ from typing import Optional
 from data.user import User
 from passlib.handlers.sha2_crypt import sha512_crypt as crypto
 from data.db_session import get_session
-
+from sqlalchemy.orm import selectinload
 
 def find_user_by_email(email: str) -> Optional[User]:
     with get_session() as session:
@@ -42,7 +42,12 @@ def login_user(email: str, password: str) -> Optional[User]:
 
 def find_user_by_id(user_id: int):
     with get_session() as session:
-        user = session.query(User).filter(User.id == user_id).first()
+        user = (
+            session.query(User)
+            .options(selectinload(User.events))  # load all events for the user
+            .filter(User.id == user_id)
+            .first()
+        )
         if not user:
             return None
         return {
