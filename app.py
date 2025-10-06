@@ -57,9 +57,10 @@ def cleanup_old_attendees():
 
 
 def start_scheduler(app):
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(func=cleanup_old_attendees, trigger="interval", hours=24)
-    scheduler.start()
+    if os.environ.get("RUN_MAIN") == "true":  # ensures only one worker starts it
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(func=cleanup_old_attendees, trigger="interval", hours=24)
+        scheduler.start()
 
 
 def create_app():
@@ -73,4 +74,4 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
