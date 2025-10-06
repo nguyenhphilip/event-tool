@@ -62,5 +62,15 @@ def start_scheduler(app):
     scheduler.start()
 
 
+def create_app():
+    setup_db()
+    register_blueprints()
+    start_scheduler(app)
+    return app
+
+
+app = create_app()
+
+
 if __name__ == "__main__":
-    main()
+    app.run(debug=True)
