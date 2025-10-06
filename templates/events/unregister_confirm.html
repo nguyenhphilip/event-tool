@@ -1,0 +1,17 @@
+{% extends "shared/_layout.html" %}
+{% block main_content %}
+
+<h2>Unregister from {{ event.title }}</h2>
+
+{% if error %}
+  <div class="error">{{ error }}</div>
+{% endif %}
+
+<form method="post">
+  <label>Enter the email you used to register:</label><br>
+  <input type="email" name="email" required>
+  <button type="submit">Confirm Unregister</button>
+  <a href="/events/{{ event.event_slug }}">Cancel</a>
+
+{% endblock %}
+

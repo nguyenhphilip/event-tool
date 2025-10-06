@@ -1,0 +1,127 @@
+{% extends "shared/_layout.html" %}
+{% block title %}Home{% endblock %}
+{% block additional_css %}
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+#calendar {
+    width: 95%;
+    /* optional: give it some height */
+    min-height: 600px; 
+    max-height: 90vh; 
+}
+
+/* Make the toolbar wrap on small screens */
+.fc-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.fc-toolbar-title {
+    flex: 1 1 auto; /* allow the title to grow/shrink */
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+    .fc-toolbar-title {
+        font-size: 1rem;
+    }
+    .fc-toolbar > * {
+        flex: 1 1 100%; /* stack buttons and title vertically */
+        text-align: center;
+    }
+    .fc button {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
+</style>
+{% endblock %}
+
+{% block main_content %}
+    <h1>Upcoming events this month...</h1>
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <div class="col-12">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+
+
+    {% block additional_js %}
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            aspectRatio: 1.5, // adjust width/height ratio
+            events: '/events/json',   // fetch from your Flask API
+            eventClick: function(info) {
+                // navigate to event detail page
+                window.location.href = info.event.url;
+                info.jsEvent.preventDefault();
+            },
+            windowResize: function() {
+                handleResponsiveView();
+                calendar.updateSize();
+            },
+            headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                // Optional: automatically switch view on small screens
+                views: {
+                    dayGridMonth: {
+                        dayMaxEvents: true // show "more" link if too many events
+                    }
+                },
+                // Automatically adjust to narrower screens
+                validRange: function(nowDate) {
+                    return { start: nowDate };
+                },
+                eventClick: function(info) {
+                    // still allow navigation when clicking inside tooltip link
+                    window.location.href = info.event.url;
+                    info.jsEvent.preventDefault();
+                },
+                eventDidMount: function(info) {
+                    // Attach a tooltip with hover + click trigger
+                    tippy(info.el, {
+                        content: `<strong>${info.event.title}</strong><br>
+                        ${info.event.extendedProps.description}<br>
+                        <a href="${info.event.url}">View Details & Register</a>`,
+                        allowHTML: true,
+                        theme: 'light-border',
+                        interactive: true,
+                        trigger: 'mouseenter click', // hover on desktop, tap on mobile
+                        placement: 'top'
+                    });
+                }
+            });
+            function handleResponsiveView() {
+                if (window.innerWidth < 768) {
+                    calendar.changeView('listWeek'); // switch to list on small screens
+                } else {
+                    calendar.changeView('dayGridMonth'); // default month view
+                    }
+                }
+                handleResponsiveView();
+                window.addEventListener('resize', handleResponsiveView);
+                calendar.render();
+            });
+        </script>
+    {% endblock %}
+
+{% endblock %}

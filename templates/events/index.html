@@ -1,0 +1,24 @@
+{% extends "shared/_layout.html" %}
+{% block title %}All events{% endblock %}
+{% block main_content %}
+        
+<div>
+    <h1>All events</h1>
+    <p>Click on the event link to register...</p>
+    {% for e in events %}
+    <div class="">
+        <span class="title"><b>Event:</b> <a href="/events/{{ e.event_slug }}">{{ e.title }}</a></span>
+        <br>
+        <span class="event_datetime"><b>Date:</b> {{ e.event_datetime.strftime("%A. %B %-d, %Y @ %-I:%M%p") }}</span>
+        <br>
+        <span class="location"><b>Location:</b> {{ e.location }}</span>
+        <br>
+        <span class="description"><b>Description:</b> {{ e.description | truncate(60, False, '[...]') }}</span>
+        <br>
+        <span class="description"><b>Host:</b> {{ e.user.name }}</span>
+    </div>
+    <br>
+    {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "shared/_layout.html" %}
+{% block title %}Attendee count{% endblock %}
+
+{% block main_content %}
+    <h1>Event: <b>{{ event.title }}</b></h1>
+    <div>
+      <h3>Number of attendees: <b>{{ attendees|length }}</b></h3>
+      {% if attendees %}
+          <ul>
+          {% for a in attendees %}
+              <li>{{ a.name }}</li>
+          {% endfor %}
+          </ul>
+      {% else %}
+          <p>No attendees yet.</p>
+      {% endif %}
+    </div>
+{% endblock %}

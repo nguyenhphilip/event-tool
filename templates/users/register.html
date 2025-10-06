@@ -1,0 +1,26 @@
+{% extends "shared/_layout.html" %}
+{% block title %}Reconvene{% endblock %}
+
+{% block main_content %}
+    
+    <div class="form-container">
+        <form action="" method="POST" class="account-form">
+            <h1>Register to add events</h1>
+
+            <input name="name" type="text" placeholder="Your name" value="{{ name }}">
+            <input name="email" type="text" placeholder="Your email" value="{{ email }}">
+            <input name="password" type="password" placeholder=" Password" value="{{ password }}">
+
+            <button type="submit">Register</button>
+
+            {% if error %}
+                <div class="error-msg">{{ error }}</div>
+            {% endif %}
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block additional_css %}
+    <link rel="stylesheet" href = "/static/css/account.css">
+{% endblock %}

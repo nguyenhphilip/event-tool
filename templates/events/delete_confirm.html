@@ -1,0 +1,13 @@
+{% extends "shared/_layout.html" %}
+{% block main_content %}
+
+<h2>Delete Event: {{ event.title }}</h2>
+<p>Are you sure you want to delete this event? This action cannot be undone.</p>
+
+<form method="post">
+  <button type="submit">Yes, delete event</button>
+  <a href="/events/{{ event.event_slug }}">Cancel</a>
+</form>
+
+{% endblock %}
+

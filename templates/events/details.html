@@ -1,0 +1,82 @@
+{% extends "shared/_layout.html" %}
+{% block main_content %}
+
+<h1>{{ event.title }}</h1>
+<p><strong>Host:</strong> {{ event.user.name }}</p>
+<p><strong>Date:</strong> {{ event.event_datetime.strftime("%A, %B %d, %Y @ %I:%M%p") }}</p>
+<p><strong>Location:</strong> {{ event.location }}</p>
+<p><strong>Description:</strong> {{ event.description }}</p>
+
+<hr>
+
+<!--for attendees-->
+{% if user_id != event.user_id %}
+
+<h3>Register for this event</h3>
+<p>(Email addresses are collected solely for ease of communication for event hosts. They will be deleted 5 days after the event date.)</p>
+<form action="/events/{{ event.event_slug }}/register" method="POST">
+    <input type="text" name="name" placeholder="Your name" required>
+    <input type="email" name="email" placeholder="Your email" required>
+    <button type="submit">Register</button>
+</form>
+<hr>
+<h3>Cancellation</h3>
+<form method="POST" action="/events/{{ event.event_slug }}/unregister" onsubmit="return confirm('Are you sure you want to cancel your attendance?');">
+    <p>If you are already registered and would like to cancel your attendance, please enter the email you registered with to unregister:</p>
+    <input type="email" name="email" placeholder="Email address" required>
+    <button type="submit">Unregister</button>
+</form>
+
+{% if error %}
+    <div class="error">{{ error }}</div>
+{% endif %}
+
+{% endif %}
+
+{% if user_id == event.user_id %}
+    <h3>Attendees</h3>
+    {% if event.attendees %}
+        <ul>
+        {% for a in event.attendees %}
+            <li>{{ a.name }} - {{ a.email }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No attendees yet.</p>
+    {% endif %}
+
+    {% if attendee_emails %} 
+    <button id="copyEmailsBtn">Copy Attendee Emails</button> 
+    <p id="copyStatus" style="display:none; color:green;">Copied!</p> 
+    <br>
+    {% endif %}
+    <br>
+    <hr>
+    <!--delete event-->
+    <h3>Delete Event</h3>
+    <form method="POST" action="/events/{{ event.event_slug }}/delete" onsubmit="return confirm('Are you sure you want to permanently delete this event? This cannot be undone.');">
+        <button type="submit" class="danger">Delete Event</button>
+    </form>    
+{% endif %}
+
+<script> 
+document.getElementById("copyEmailsBtn")?.addEventListener("click", async function() { 
+    // Jinja renders the emails already joined with commas
+    const emails = `{{ attendee_emails }}`.trim();
+    if (!emails) { 
+        alert("No attendee emails to copy."); 
+        return; 
+    } 
+        
+    try { 
+        await navigator.clipboard.writeText(emails); 
+        const status = document.getElementById("copyStatus"); 
+        status.style.display = "inline"; 
+        setTimeout(() => { status.style.display = "none"; }, 2000);
+    } catch (err) { 
+        alert("Failed to copy emails: " + err); 
+    } 
+}); 
+</script>
+
+{% endblock %}

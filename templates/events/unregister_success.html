@@ -1,0 +1,10 @@
+{% extends "shared/_layout.html" %}
+{% block main_content %}
+
+<h2>Unregistered</h2>
+<p>{{ email }} has been removed from "{{ event_name }}".</p>
+<a href="/events/{{ event_slug }}">Back to event page.</a>
+
+
+{% endblock %}
+
