@@ -1,26 +1,59 @@
 {% extends "shared/_layout.html" %}
 {% block title %}Account{% endblock %}
-{% block additional_css %}<style>h1{color: blueviolet;}</style>{% endblock %}
+{% block additional_css %}
+<style>
+  h1 {
+    color: blueviolet;
+  }
+  .event-card {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  .delete-btn {
+    background-color: #c62828;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .delete-btn:hover {
+    background-color: #b71c1c;
+  }
+</style>
+{% endblock %}
 
 {% block main_content %}
 
-    <h1>Account Page</h1>
-    <div>
-        <p>Welcome to your account {{ user.name }}. These are the events you're hosting:</p>
-    </div>
-    <div>
+<h1>Account Page</h1>
+<div>
+  <p>Welcome to your account {{ user.name }}. These are the events you're hosting:</p>
+</div>
+
+<div>
+  {% if user.events %}
     {% for e in user.events %}
     <div class="event-card">
-        <span class="title"><strong>Title</strong>: <a href="/events/{{ e.event_slug }}">{{ e.title }}</a></span>
-        <br>
-        <span class="event_datetime"><strong>Date</strong>: {{ e.event_datetime.strftime("%A. %B %-d, %Y @ %-I:%M%p") }}</span><br>
-        <span class="location"><strong>Location</strong>: {{ e.location }}</span><br>
-        <span class="description"><strong>Description</strong>: {{ e.description }}</span><br>
-        <span><strong>Attendee count</strong> (click to view list of attendees): <a href="/events/{{ e.event_slug }}/attendees">{{ e.attendees|length }}</a></span>
-    </div>
-    <hr>
-    {% endfor %}
-    </div>
+      <span class="title"><strong>Title</strong>: <a href="/events/{{ e.event_slug }}">{{ e.title }}</a></span><br>
+      <span class="event_datetime"><strong>Date</strong>: {{ e.event_datetime.strftime("%A. %B %-d, %Y @ %-I:%M%p") }}</span><br>
+      <span class="location"><strong>Location</strong>: {{ e.location }}</span><br>
+      <span class="description"><strong>Description</strong>: {{ e.description }}</span><br>
+      <span><strong>Attendee count</strong> (click to view list of attendees): 
+        <a href="/events/{{ e.event_slug }}/attendees">{{ e.attendees|length }}</a>
+      </span>
+      <br><br>
 
+      <!-- Delete Button -->
+      <form method="POST" action="/users/{{ e.event_slug }}/delete" onsubmit="return confirm('Are you sure you want to permanently delete this event? This cannot be undone.');">
+        <button type="submit" class="danger">Delete Event</button>
+      </form>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p>You haven’t hosted any events yet.</p>
+  {% endif %}
+</div>
 
 {% endblock %}

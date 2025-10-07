@@ -9,10 +9,9 @@ from viewmodels.events.details_viewmodel import EventDetailsViewModel
 from viewmodels.events.create_viewmodel import EventCreateViewModel
 from viewmodels.events.register_viewmodel import EventRegisterViewModel
 from viewmodels.events.unregister_viewmodel import EventUnregisterViewModel
-from viewmodels.events.delete_viewmodel import EventDeleteViewModel
 from viewmodels.events.json_viewmodel import EventsJsonViewModel
 from viewmodels.events.attendees_viewmodel import EventAttendeesViewModel
-from viewmodels.events.event_delete_success_viewmodel import EventDeleteSuccessViewModel
+
 
 
 blueprint = flask.Blueprint('events', __name__, template_folder='templates')
@@ -145,20 +144,3 @@ def unregister_attendee(event_slug):
 # Host Event Deletion
 # =========================
 
-
-@blueprint.route("/events/<event_slug>/delete", methods=["POST"])
-def delete_event(event_slug):
-    vm = EventDeleteViewModel()
-    vm.validate()
-    if vm.error:
-        return flask.render_template("events/not_authorized.html", **vm.to_dict()), 403
-    session = vm.session
-    session.delete(vm.event)
-    session.commit()
-    return flask.redirect(flask.url_for("events.delete_success", event_slug=event_slug))
-
-
-@blueprint.route("/events/<event_slug>/delete/success")
-def delete_success(event_slug):
-    vm = EventDeleteSuccessViewModel()
-    return flask.render_template("events/delete_success.html", **vm.to_dict())

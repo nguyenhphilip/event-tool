@@ -51,17 +51,10 @@
     <br>
     {% endif %}
     <br>
-    <hr>
-    <!--delete event-->
-    <h3>Delete Event</h3>
-    <form method="POST" action="/events/{{ event.event_slug }}/delete" onsubmit="return confirm('Are you sure you want to permanently delete this event? This cannot be undone.');">
-        <button type="submit" class="danger">Delete Event</button>
-    </form>    
 {% endif %}
 
 <script> 
 document.getElementById("copyEmailsBtn")?.addEventListener("click", async function() { 
-    // Jinja renders the emails already joined with commas
     const emails = `{{ attendee_emails }}`.trim();
     if (!emails) { 
         alert("No attendee emails to copy."); 

@@ -77,3 +77,20 @@ def logout():
     cookie_auth.logout(resp)
 
     return resp
+
+
+@blueprint.route("/users/<event_slug>/delete", methods=["POST"])
+def delete_host_event(event_slug):
+    
+    vm = IndexViewModel()
+    vm.validate_delete(event_slug)
+
+    if vm.error:
+        flask.flash(vm.error, "error")
+        return flask.redirect("/users")
+
+    return flask.render_template(
+        "events/delete_success.html",
+        event_title=vm.deleted_event_title,
+        event_slug=vm.deleted_event_slug
+    )
