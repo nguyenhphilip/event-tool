@@ -82,7 +82,8 @@ def create_app():
     start_scheduler()
     return app
 
+# Ensure blueprints are registered even when imported by Gunicorn
+create_app()
 
 if __name__ == "__main__":
-    app = create_app()
     app.run(debug=False)
