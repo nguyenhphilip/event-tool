@@ -15,10 +15,9 @@ app = flask.Flask(__name__)
 # ------------------------------------------------------------
 # This ensures logs from the scheduler show up in Render's dashboard
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("event_tool_scheduler")
-
-
 
 
 def main():
@@ -84,7 +83,6 @@ def create_app():
     return app
 
 
-app = create_app()
-
 if __name__ == "__main__":
-    main()
+    app = create_app()
+    app.run(debug=False)

@@ -63,23 +63,16 @@ def find_event_by_slug(event_slug: str) -> Optional[Event]:
         )
 
 
-def create_event(eventname: str, location: str, event_datetime, description: str, user_id: int) -> Optional[Event]:
-    """
-    Creates a new event and returns it (already stored in DB).
-    """
-    event = Event()
-    event.title = eventname
-    event.location = location
-    event.description = description
-    event.event_datetime = event_datetime
-    event.user_id = user_id
-
-    # generate slug
-    event_slug = eventname.lower().strip().replace("'", "")
-    event_slug = re.sub(r"\s+", "-", event_slug)
-    event_slug = re.sub(r"[^a-z0-9-]", "", event_slug)
-    event.event_slug = event_slug
-
+def create_event(eventname: str, location: str, event_datetime, description: str, user_id: int) -> Event:
+    
     with get_session() as session:
+        event = Event(
+            title=eventname,
+            location=location,
+            description=description,
+            event_datetime=event_datetime,
+            user_id=user_id,
+        )
         session.add(event)
+        session.commit()
         return event

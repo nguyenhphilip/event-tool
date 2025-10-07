@@ -7,7 +7,6 @@ from data.attendee import Attendee
 class EventViewModelBase(ViewModelBase):
     def __init__(self, event_slug=None):
         super().__init__()
-        # self.event_slug = self.request_dict.event_slug 
         self.event_slug = event_slug or self.request.view_args.get("event_slug")
         self.session = db_session.create_session()
         self.event = None

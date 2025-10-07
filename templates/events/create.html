@@ -2,29 +2,49 @@
 {% block title %}Reconvene{% endblock %}
 
 {% block main_content %}
-    
-    <div class="form-container">
-        <form action="" method="POST" class="account-form">
-            <h1>Create an event</h1>
+<div class="form-container">
+    <form action="/events/create" method="POST" class="account-form">
+        <h1>Create an event</h1>
 
-            <input name="eventname" type="text" placeholder="Event name" value="{{ eventname }}">
-            <br><br>
-            <input name="location" type="text" placeholder="Location" value="{{ location }}">
-            <br><br>
-            <input name="event_datetime" type="datetime-local" placeholder="Date and time of the event" value="{{ event_datetime }}">
-            <br><br>
-            <textarea name="description" type="text" placeholder="Event description" value="{{ description }}"></textarea>
-            <br><br>
-            <button type="submit">Create event</button>
+        <input name="eventname" type="text" placeholder="Event title" required>
+        <br><br>
+        <input name="location" type="text" placeholder="Location" required>
+        <br><br>
+        <input name="event_datetime" type="datetime-local" placeholder="Date and time of the event" required>
+        <!-- Repeat weekly checkbox -->
+        <label style="display:block; margin-top:5px;">
+            <input type="checkbox" id="is_recurring" name="is_recurring" value="true">
+            Repeat weekly?
+        </label>
+        <!-- Number of weeks input (hidden initially) -->
+        <div id="numWeeksContainer" style="display:none; margin-top:8px;">
+            <label for="num_weeks">For how many weeks?</label>
+            <input type="number" id="num_weeks" name="num_weeks" min="1" max="52" value="1">
+        </div>
+        <br>
+        <textarea name="description" placeholder="Event description"></textarea>
+        <br>
+        <button type="submit">Create event</button>
 
-            {% if error %}
-                <div class="error-msg">{{ error }}</div>
-            {% endif %}
-        </form>
-    </div>
+        {% if error %}
+            <div class="error-msg">{{ error }}</div>
+        {% endif %}
+    </form>
+</div>
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const checkbox = document.getElementById("is_recurring");
+    const numWeeksContainer = document.getElementById("numWeeksContainer");
+
+    // Hide/show number-of-weeks input dynamically
+    checkbox.addEventListener("change", function() {
+        numWeeksContainer.style.display = this.checked ? "block" : "none";
+    });
+});
+</script>
 {% endblock %}
 
 {% block additional_css %}
-    <link rel="stylesheet" href = "/static/css/account.css">
+<link rel="stylesheet" href="/static/css/account.css">
 {% endblock %}

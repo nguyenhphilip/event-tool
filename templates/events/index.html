@@ -1,24 +1,47 @@
 {% extends "shared/_layout.html" %}
-{% block title %}All events{% endblock %}
+{% block title %}All Events{% endblock %}
 {% block main_content %}
-        
+
 <div>
-    <h1>All events</h1>
-    <p>Click on the event link to register...</p>
-    {% for e in events %}
-    <div class="">
-        <span class="title"><b>Event:</b> <a href="/events/{{ e.event_slug }}">{{ e.title }}</a></span>
-        <br>
-        <span class="event_datetime"><b>Date:</b> {{ e.event_datetime.strftime("%A. %B %-d, %Y @ %-I:%M%p") }}</span>
-        <br>
-        <span class="location"><b>Location:</b> {{ e.location }}</span>
-        <br>
-        <span class="description"><b>Description:</b> {{ e.description | truncate(60, False, '[...]') }}</span>
-        <br>
-        <span class="description"><b>Host:</b> {{ e.user.name }}</span>
-    </div>
-    <br>
-    {% endfor %}
+    <h1>All Events</h1>
+
+    <h2>Upcoming Events</h2>
+    {% if upcoming_events %}
+        <p>Click an event link to register.</p>
+        {% for e in upcoming_events %}
+            <div class="event">
+                <span class="title"><b>Event:</b> 
+                    <a href="/events/{{ e.event_slug }}">{{ e.title }}</a>
+                </span><br>
+                <span class="event_datetime"><b>Date:</b> {{ e.event_datetime.strftime("%A, %B %-d, %Y @ %-I:%M%p") }}</span><br>
+                <span class="location"><b>Location:</b> {{ e.location }}</span><br>
+                <span class="description"><b>Description:</b> {{ e.description | truncate(60, False, '[...]') }}</span><br>
+                <span class="host"><b>Host:</b> {{ e.user.name }}</span>
+            </div>
+            <br>
+        {% endfor %}
+    {% else %}
+        <p>No upcoming events.</p>
+    {% endif %}
+
+    <hr>
+
+    <h2>Past Events</h2>
+    {% if past_events %}
+        <p>These events have already occurred and are no longer open for registration.</p>
+        {% for e in past_events %}
+            <div class="event past-event">
+                <span class="title"><b>Event:</b> {{ e.title }}</span><br>
+                <span class="event_datetime"><b>Date:</b> {{ e.event_datetime.strftime("%A, %B %-d, %Y @ %-I:%M%p") }}</span><br>
+                <span class="location"><b>Location:</b> {{ e.location }}</span><br>
+                <span class="description"><b>Description:</b> {{ e.description | truncate(60, False, '[...]') }}</span><br>
+                <span class="host"><b>Host:</b> {{ e.user.name }}</span>
+            </div>
+            <br>
+        {% endfor %}
+    {% else %}
+        <p>No past events yet.</p>
+    {% endif %}
 </div>
 
 {% endblock %}

@@ -9,3 +9,22 @@ nav > a {
 .main_content {
     padding: 20px;
 }
+
+.event {
+  transition: opacity 0.2s ease-in;
+  margin-bottom: 1rem;
+}
+
+.past-event {
+  color: #aaa;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.past-event b {
+  color: #888;
+}
+
+.past-event .title {
+  font-style: italic;
+}

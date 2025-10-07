@@ -5,6 +5,7 @@ import infrastructure.cookie_auth as cookie_auth
 import services.event_service as event_service
 from data.event import Event
 
+
 blueprint = flask.Blueprint('home', __name__, template_folder='templates')
 
 

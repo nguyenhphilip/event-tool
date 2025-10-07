@@ -12,6 +12,8 @@ from viewmodels.events.unregister_viewmodel import EventUnregisterViewModel
 from viewmodels.events.delete_viewmodel import EventDeleteViewModel
 from viewmodels.events.json_viewmodel import EventsJsonViewModel
 from viewmodels.events.attendees_viewmodel import EventAttendeesViewModel
+from viewmodels.events.event_delete_success_viewmodel import EventDeleteSuccessViewModel
+
 
 blueprint = flask.Blueprint('events', __name__, template_folder='templates')
 
@@ -54,25 +56,6 @@ def event_attendees(event_slug: str):
     return flask.render_template("events/attendees.html", **vm.to_dict())
 
 
-# @blueprint.route("/events/<event_slug>/register", methods=["POST"])
-# def register_for_event(event_slug: str):
-#     r = flask.request
-#     name = r.form.get("name", "").strip()
-
-#     if not name:
-#         return flask.render_template("events/details.html",
-#                                      error="Name is required.",
-#                                      event=event_service.find_event_by_slug(event_slug))
-
-#     event = event_service.find_event_by_slug(event_slug)
-#     if not event:
-#         flask.abort(404)
-
-#     event_service.add_attendee(event.id, name)
-
-#     return flask.redirect(f"/events/{event_slug}/thankyou")
-
-
 @blueprint.route("/events/<event_slug>/thankyou")
 def register_confirmed(event_slug: str):
     event = event_service.find_event_by_slug(event_slug)
@@ -96,11 +79,25 @@ def event_create():
     if vm.error:
         return flask.render_template('events/create.html', **vm.to_dict())
 
-    user_id = cookie_auth.get_user_id_via_auth_cookie(flask.request)
+    user_id = vm.user_id
+
     if not user_id:
         return flask.redirect('/users/login')
+    
+    # Create the first event
+    event_service.create_event(
+        vm.eventname, vm.location, vm.parsed_datetime, vm.description, user_id
+    )
+    
+    # Handle recurrence
+    if vm.is_recurring and vm.num_weeks > 1:
+        from datetime import timedelta
+        for week in range(1, vm.num_weeks):
+            next_date = vm.parsed_datetime + timedelta(weeks=week)
+            event_service.create_event(
+                vm.eventname, vm.location, next_date, vm.description, user_id
+            )
 
-    event_service.create_event(vm.eventname, vm.location, vm.parsed_datetime, vm.description, user_id)
     return flask.redirect('/events')
 
 
@@ -108,11 +105,6 @@ def event_create():
 # Attendee Unregistration
 # =========================
 
-import flask
-from data.event import Event
-from data.attendee import Attendee
-import data.db_session as db_session
-import infrastructure.cookie_auth as cookie_auth
 
 @blueprint.route("/events/<event_slug>/register", methods=["POST"])
 def register_attendee(event_slug):
@@ -127,6 +119,7 @@ def register_attendee(event_slug):
     session.add(attendee)
     session.commit()
     return flask.redirect(flask.url_for("events.register_confirmed", event_slug=vm.event.event_slug))
+
 
 @blueprint.route("/events/<event_slug>/unregister/success")
 def unregister_success(event_slug):
@@ -152,6 +145,7 @@ def unregister_attendee(event_slug):
 # Host Event Deletion
 # =========================
 
+
 @blueprint.route("/events/<event_slug>/delete", methods=["POST"])
 def delete_event(event_slug):
     vm = EventDeleteViewModel()
@@ -166,4 +160,5 @@ def delete_event(event_slug):
 
 @blueprint.route("/events/<event_slug>/delete/success")
 def delete_success(event_slug):
-    return flask.render_template("events/delete_success.html")
+    vm = EventDeleteSuccessViewModel()
+    return flask.render_template("events/delete_success.html", **vm.to_dict())
